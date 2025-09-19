@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import { useParams } from "next/navigation";
 import { usePortfolioStore } from "../../../../../store/portfolioStore";
 
@@ -10,19 +9,20 @@ export default function PortfolioDetail() {
   );
 
   if (!portfolio) return <div className="p-4 text-red-400">ไม่พบข้อมูล</div>;
+  console.log("portfolio.images", portfolio.images);
 
+  
   return (
     <div className="min-h-screen bg-gray-950 p-8 text-white flex " >
         <div>
           {portfolio.images.length > 0 && (
             <div className="grid grid-cols-3 gap-2 mt-4">
               {portfolio.images.map((img, i) => (
-                <div key={i} className="relative w-70 h-100">
-                  <Image
+                <div key={i} className="relative w-70 h-100 ">
+                  <img
                     src={img}
                     alt="portfolio"
-                    fill
-                    className="rounded-lg object-cover"
+                    className="rounded-lg object-cover w-full h-full"
                   />
                 </div>
               ))}

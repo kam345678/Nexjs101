@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 
 interface Props {
-  onChange: (images: string[]) => void;
+  onChange: (images: File[]) => void;
   resetSignal?: boolean;
 }
 
@@ -11,17 +11,17 @@ export default function UploadImage({ onChange, resetSignal }: Props) {
   const [images, setPreview] = useState<string[]>([]);
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-  if (e.target.files) {
-    const files = Array.from(e.target.files);
-    const urls = files.map((f) => URL.createObjectURL(f));
-    setPreview((prev) => {
-      // cleanup URL เก่าก่อน
-      prev.forEach((u) => URL.revokeObjectURL(u));
-      return urls;
-    });
-    onChange(urls);
-  }
-};
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      const urls = files.map((f) => URL.createObjectURL(f));
+      setPreview((prev) => {
+        // cleanup URL เก่าก่อน
+        prev.forEach((u) => URL.revokeObjectURL(u));
+        return urls;
+      });
+      onChange(files);
+    }
+  };
 
   useEffect(() => {
     // cleanup current images' object URLs
@@ -36,12 +36,12 @@ export default function UploadImage({ onChange, resetSignal }: Props) {
       <input type="file" multiple accept="image/*" onChange={handleUpload} />
       <div className="grid grid-cols-3 gap-2 mt-2">
         {images.map((img, idx) => (
-          <div key={idx} className="relative w-32 h-32">
-          <Image
-          src={img}
-          alt={`upload-${idx}`}
-          fill
-          className="object-cover rounded-lg"/>
+          <div key={idx} className="w-32 h-32">
+            <img
+              src={img}
+              alt={`upload-${idx}`}
+              className="rounded-lg object-cover w-full h-full"
+            />
           </div>
         ))}
       </div>

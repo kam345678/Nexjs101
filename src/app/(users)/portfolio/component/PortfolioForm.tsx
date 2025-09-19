@@ -22,6 +22,21 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        resolve(reader.result);
+      } else {
+        reject("Failed to convert file to base64");
+      }
+    };
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function PortfolioForm() {
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -41,37 +56,39 @@ export default function PortfolioForm() {
   });
 
   const addPortfolio = usePortfolioStore((s) => s.addPortfolio);
-  const [images, setImages] = useState<string[]>([]);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [pdfFile, setPdfFile] = useState<string | null>(null);
   const [resetSignal, setResetSignal] = useState(false); 
 
-  const onSubmit = (data: FormData) => {
+  const onSubmit = async (data: FormData) => {
     const formattedGpa = parseFloat(data.gpa.toFixed(2));
-    addPortfolio({ ...data, gpa: formattedGpa, images, pdf: pdfFile || undefined });
+    // Convert each File to base64 string
+    const base64Images = await Promise.all(imageFiles.map(fileToBase64));
+    addPortfolio({ ...data, gpa: formattedGpa, images: base64Images, pdf: pdfFile || undefined });
     reset();
-    setImages([]);
+    setImageFiles([]);
     setPdfFile(null);
     setResetSignal(prev => !prev); 
   };
 
-const handleClear = () => {
-  reset({
-    firstName: "",
-    lastName: "",
-    address: "",
-    phone: "",
-    school: "",
-    gpa: 0,
-    talent: "",
-    reason: "",
-    faculty: "",
-    major: "",
-    university: "",
-  });
-  setImages([]);
-  setPdfFile(null);
-  setResetSignal(prev => !prev);
-};
+  const handleClear = () => {
+    reset({
+      firstName: "",
+      lastName: "",
+      address: "",
+      phone: "",
+      school: "",
+      gpa: 0,
+      talent: "",
+      reason: "",
+      faculty: "",
+      major: "",
+      university: "",
+    });
+    setImageFiles([]);
+    setPdfFile(null);
+    setResetSignal(prev => !prev);
+  };
 
   const handlePdfUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -151,7 +168,7 @@ const handleClear = () => {
       <div className="flex">
         <label className="mt-4">รูปถ่าย 1.5 นิ้ว : </label>
         {/* 👇 ส่ง resetSignal ไปที่ UploadImage */}
-        <UploadImage onChange={setImages} resetSignal={resetSignal} />
+        <UploadImage onChange={setImageFiles} resetSignal={resetSignal} />
       </div>
 
       <div className="flex items-center mt-4">
