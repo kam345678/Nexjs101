@@ -1,9 +1,9 @@
-export default function MemberPage({
-  params,
-}: {
-  params: { id: string };
-}) {
-  const { id } = params;
+"use client";
+import { useParams } from "next/navigation";
+
+export default function MemberPage() {
+  const params = useParams();
+  const id = params?.id;
 
   return (
     <div>
