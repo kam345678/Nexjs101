@@ -1,6 +1,6 @@
 "use client"
 // Bus*12 Member page
-import { useMebers } from "./store/MemberList"  
+import { useMebers } from "../../../store/MemberList"  
 import Link from "next/link"
 
 export default function MemberBusPage(){
